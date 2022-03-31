@@ -16,6 +16,7 @@
 
 package org.springframework.core.type;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -46,10 +47,15 @@ public interface AnnotationMetadata extends ClassMetadata, AnnotatedTypeMetadata
 	 * @return the annotation type names
 	 */
 	default Set<String> getAnnotationTypes() {
-		return getAnnotations().stream()
-				.filter(MergedAnnotation::isDirectlyPresent)
-				.map(annotation -> annotation.getType().getName())
-				.collect(Collectors.toCollection(LinkedHashSet::new));
+		MergedAnnotations annotations = getAnnotations();
+		LinkedHashSet<String> set = new LinkedHashSet<>();
+		for (MergedAnnotation<Annotation> annotation : annotations) {
+			if (!annotation.isDirectlyPresent()) {
+				continue;
+			}
+			set.add(annotation.getType().getName());
+		}
+		return set;
 	}
 
 	/**
